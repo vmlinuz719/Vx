@@ -59,7 +59,7 @@ ProgramGroup *readConfigFile(char *fileName);
  *	0 on success, non-zero on error
  */
 
-int execProgram(Program *program);
+int execProgram(Program *program, char *args);
 
 /* void deleteProgram(Program *program) - free()s a program */
 
@@ -77,4 +77,5 @@ void deleteProgramGroup(ProgramGroup *programGroup);
 #define TYPE_LEN 3
 #define VISUALNAME_LEN 16
 #define COMMAND_LEN 128
-
+#define FULL_COMMAND_LEN 256
+#define MAX_ARGS 256

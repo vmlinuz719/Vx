@@ -1,4 +1,4 @@
-grp Desktop_Tools
+grp	Desktop_Tools
 	pgm	Nedit		nedit
 	pgm 	Terminal	xterm
 

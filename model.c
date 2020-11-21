@@ -1,11 +1,12 @@
-/* Visual Executive - Read File
+/* Visual Executive - Model
  * (C) 2020 vmlinuz719. All rights reserved
  * See COPYING for copyright notice. You may modify and redistribute this file
  * however you like, so long as it is redistributed along with the notice in
  * COPYING.
  
  * This file contains code used to read .vx configuration files. The format is
- * specified in vx.h.
+ * specified in vx.h. Code to work with the internal representation of program
+ * groups is also present.
  */
 
 #include <ctype.h>
@@ -13,8 +14,55 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "vx.h"
+
+int execProgram(Program *program, char *args) {
+	char fullCommandBuffer[FULL_COMMAND_LEN];
+	char *argv[MAX_ARGS];
+	argv[0] = NULL;
+	
+	/* first, copy the basename
+	 * then, concatenate any additional args
+	 * check if it fits
+	 */
+	
+	if (strlcpy(fullCommandBuffer, program->command, FULL_COMMAND_LEN)
+			>= FULL_COMMAND_LEN ||
+			strlcat(fullCommandBuffer, " ", FULL_COMMAND_LEN)
+			>= FULL_COMMAND_LEN ||
+			strlcat(fullCommandBuffer, args, FULL_COMMAND_LEN)
+			>= FULL_COMMAND_LEN) {
+		/* string was too long */
+		
+		return EXIT_FAILURE;
+	}
+	
+	char *token = NULL, *last = NULL;
+	int i = 0;
+	
+	for (token = strtok_r(fullCommandBuffer, " \t\n", &last);
+			token;
+			token = strtok_r(NULL, " \t\n", &last)) {
+		if (i < MAX_ARGS - 1) {
+			argv[i++] = token;
+		}
+	}
+	argv[i] = NULL;
+	
+	/* run the program! */
+	
+	pid_t parent = fork();
+	
+	if (parent == -1) {
+		return EXIT_FAILURE;
+	} else if (!parent) {
+		execvp(argv[0], argv);
+	}
+	
+	return EXIT_SUCCESS;	
+}
 
 void deleteProgram(Program *program) {
 	free(program->visualName);
@@ -105,7 +153,8 @@ ProgramGroup *readConfigFile(char *fileName) {
 				
 				/* add new group node */
 				
-				char *visualName = malloc(strlen(nameToken) *
+				char *visualName = malloc(
+						(strlen(nameToken) + 1) *
 						sizeof(char));
 				if (visualName == NULL) {
 					return readConfigFileFailed
@@ -145,7 +194,8 @@ ProgramGroup *readConfigFile(char *fileName) {
 				
 				/* add new program node */
 				
-				char *visualName = malloc(strlen(nameToken) *
+				char *visualName = malloc(
+						(strlen(nameToken) + 1) *
 						sizeof(char));
 				if (visualName == NULL) {
 					return readConfigFileFailed
@@ -154,7 +204,8 @@ ProgramGroup *readConfigFile(char *fileName) {
 				
 				strcpy(visualName, nameToken);
 				
-				char *command = malloc(strlen(strtokContext) *
+				char *command = malloc(
+						(strlen(strtokContext) + 1) *
 						sizeof(char));
 				if (command == NULL) {
 					return readConfigFileFailed
@@ -201,11 +252,9 @@ int main(int argc, char *argv[]) {
 			if (current->programs != NULL) {
 				Program *currentProgram = current->programs;
 				while (currentProgram != NULL) {
-					printf("Program %s, ",
-						currentProgram->visualName);
-					printf("command %s\n",
-						currentProgram->command);
-					
+					printf("Program %s\n",
+							currentProgram->
+							visualName);
 					currentProgram = currentProgram->next;
 				}
 			}
