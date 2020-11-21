@@ -28,10 +28,12 @@
 typedef struct {
 	Widget topLevel, mainWindow, menuBar, quit, help;
 	Widget groupList, programList;
-	Widget commandBox;
+	Widget commandBox, runButton;
 	Widget favButton, unfavButton;
 	XtAppContext context;
 } View;
+
+/* TODO: move callbacks to controller */
 
 void quitCallback() {
 	printf("Exiting.\n");
@@ -72,8 +74,8 @@ View *createView(int argc, char *argv[]) {
 	
 	Widget resizer = XtVaCreateManagedWidget("resizer",
 			xmFormWidgetClass, view->mainWindow,
-			XmNmarginWidth, 3,
-			XmNmarginHeight, 3,
+			XmNmarginWidth, 5,
+			XmNmarginHeight, 5,
 			NULL);
 	
 	Widget pane = XtVaCreateManagedWidget("pane",
@@ -82,7 +84,7 @@ View *createView(int argc, char *argv[]) {
 			XmNtopAttachment, XmATTACH_FORM,
 			XmNleftAttachment, XmATTACH_FORM,
 			XmNrightAttachment, XmATTACH_FORM,
-			XmNbottomAttachment, XmATTACH_FORM,
+			/* XmNbottomAttachment, XmATTACH_FORM, */
 			NULL);
 	
 	Widget left = XtVaCreateManagedWidget("left",
@@ -92,8 +94,8 @@ View *createView(int argc, char *argv[]) {
 			XmNleftAttachment, XmATTACH_FORM,
 			XmNrightAttachment, XmATTACH_POSITION,
 			XmNrightPosition, 50,
-			XmNmarginWidth, 3,
-			XmNmarginHeight, 3,
+			XmNmarginWidth, 5,
+			XmNmarginHeight, 5,
 			NULL);
 	
 	Widget right = XtVaCreateManagedWidget("right",
@@ -103,8 +105,8 @@ View *createView(int argc, char *argv[]) {
 			XmNrightAttachment, XmATTACH_FORM,
 			XmNleftAttachment, XmATTACH_POSITION,
 			XmNleftPosition, 50,
-			XmNmarginWidth, 3,
-			XmNmarginHeight, 3,
+			XmNmarginWidth, 5,
+			XmNmarginHeight, 5,
 			NULL);
 	
 	Widget groupLabel = XtVaCreateManagedWidget("Groups",
@@ -145,6 +147,35 @@ View *createView(int argc, char *argv[]) {
 			XmNrightAttachment, XmATTACH_FORM,
 			XmNbottomAttachment, XmATTACH_WIDGET,
 			XmNbottomWidget, view->favButton,
+			NULL);
+	
+	Widget commandArea = XtVaCreateManagedWidget("commandArea",
+			xmFormWidgetClass, resizer,
+			XmNbottomAttachment, XmATTACH_FORM,
+			XmNleftAttachment, XmATTACH_FORM,
+			XmNrightAttachment, XmATTACH_FORM,
+			XmNmarginWidth, 5,
+			NULL);
+	XtVaSetValues(pane, XmNbottomAttachment, XmATTACH_WIDGET,
+			XmNbottomWidget, commandArea,
+			NULL);
+	Widget commandLabel = XtVaCreateManagedWidget("Command:",
+			xmLabelWidgetClass, commandArea,
+			XmNtopAttachment, XmATTACH_FORM,
+			XmNleftAttachment, XmATTACH_FORM,
+			NULL);
+	view->runButton = XtVaCreateManagedWidget("Run",
+			xmPushButtonWidgetClass, commandArea,
+			XmNbottomAttachment, XmATTACH_FORM,
+			XmNrightAttachment, XmATTACH_FORM,
+			NULL);
+	view->commandBox = XtVaCreateManagedWidget("commandBox",
+			xmTextWidgetClass, commandArea,
+			XmNleftAttachment, XmATTACH_FORM,
+			XmNrightAttachment, XmATTACH_WIDGET,
+			XmNrightWidget, view->runButton,
+			XmNtopAttachment, XmATTACH_WIDGET,
+			XmNtopWidget, commandLabel,
 			NULL);
 	
 	XtSetArg(arg[0], XmNmenuHelpWidget, view->help);
