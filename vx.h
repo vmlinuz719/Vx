@@ -73,7 +73,7 @@ void deleteProgramGroup(ProgramGroup *programGroup);
 
 /* Preprocessor config options */
 
-#define TEST_GETLINE
+#define BUILD
 #define TYPE_LEN 3
 #define VISUALNAME_LEN 16
 #define COMMAND_LEN 128
