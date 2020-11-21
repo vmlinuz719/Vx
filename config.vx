@@ -1,0 +1,7 @@
+grp Desktop_Tools
+	pgm	Nedit		nedit
+	pgm 	Terminal	xterm
+
+grp	System_Tools
+	pgm	Tmux		xterm tmux
+	pgm	Htop		xterm htop
