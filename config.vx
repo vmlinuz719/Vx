@@ -5,3 +5,8 @@ grp	Desktop_Tools
 grp	System_Tools
 	pgm	Tmux		xterm tmux
 	pgm	Htop		xterm htop
+	pgm	DtApm		dtapm
+
+grp	Network
+	pgm	Firefox		firefox
+	pgm	Netstat		xterm netstat
