@@ -176,6 +176,9 @@ void cancelCallback(Widget w, XtPointer clientData,
 }
 
 int main(int argc, char *argv[]) {
+	fclose(stdout);
+	fclose(stdin);
+	
 	/* mop off child processes */
 	
 	signal(SIGCHLD, SIG_IGN);
