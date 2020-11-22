@@ -193,8 +193,11 @@ View *createView(int argc, char *argv[]) {
 			("Select a program group on the left.\n"
 			"Then, choose a program on the right.\n"
 			"Double-click the program's name to start it.\n\n"
-			"You may enter or edit any command\n"
-			"using the command entry box on the bottom.");
+			"You may enter or edit any command using the\n"
+			"command entry box on the bottom.\n\n"
+			"Programs that do not provide a graphical\n"
+			"interface will fail silently unless run in a\n"
+			"terminal window (e.g. Xterm).");
 	XtVaSetValues(view->defaultHelpDialog,
 			XmNmessageString, defaultHelpText,
 			NULL);
