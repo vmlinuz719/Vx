@@ -187,6 +187,11 @@ View *createView(int argc, char *argv[]) {
 			(view->quit, "error", errorArg, errorn);
 	XmStringFree(errorText);
 	
+	XtVaSetValues(resizer,
+			XmNwidth, 480,
+			XmNheight, 256,
+			NULL);
+	
 	XtSetArg(arg[0], XmNmenuHelpWidget, view->help);
 	XtSetValues(view->menuBar, arg, 1);
 	
