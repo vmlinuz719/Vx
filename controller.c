@@ -10,6 +10,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
 
 #include <Xm/Xm.h>
 #include <Xm/MessageB.h>
@@ -34,8 +36,25 @@ void setListContents(Widget widget, int n, char *contents[], int maxSize) {
 	XtFree((char *)items);
 }
 
-void helpCallback() {
-	printf("Not implemented, sorry.\n");
+void destroyCallback(Widget widget, XtPointer clientData, XtPointer callData) {
+	XtDestroyWidget(XtParent(widget));
+}
+
+void helpCallback(Widget widget, XtPointer clientData, XtPointer callData) {
+	View *view = (View *)clientData;
+	
+	if (widget == view->help) {
+		XtManageChild(view->defaultHelpDialog);
+		XtPopup(XtParent(view->defaultHelpDialog), XtGrabNone);
+	} else if(widget == view->quitDialog) {
+		XtManageChild(view->quitHelpDialog);
+		XtPopup(XtParent(view->quitHelpDialog), XtGrabNone);
+	} else if(widget == view->commandNotFoundDialog) {
+		XtManageChild(view->runHelpDialog);
+		XtPopup(XtParent(view->runHelpDialog), XtGrabNone);
+	} else {
+		fprintf(stderr, "Not implemented, sorry.\n");
+	}
 }
 
 void exitProgram() {
@@ -157,6 +176,10 @@ void cancelCallback(Widget w, XtPointer clientData,
 }
 
 int main(int argc, char *argv[]) {
+	/* mop off child processes */
+	
+	signal(SIGCHLD, SIG_IGN);
+	
 	View *view = NULL;
 	
 	/* read config file specified on command line
@@ -165,7 +188,7 @@ int main(int argc, char *argv[]) {
 	
 	groups = readConfigFile(argc > 1 ? argv[1] : "config.vx");
 	if (groups == NULL) {
-		printf("Error opening file\n");
+		fprintf(stderr, "Error opening file\n");
 		exit(EXIT_FAILURE);
 	}
 	
@@ -181,7 +204,7 @@ int main(int argc, char *argv[]) {
 	
 	char **groupList = malloc(n * sizeof(char *));
 	if (groupList == NULL) {
-		printf("Memory error\n");
+		fprintf(stderr, "Memory error\n");
 		exitProgram();
 	}
 	
@@ -214,7 +237,7 @@ int main(int argc, char *argv[]) {
 	XtAddCallback(view->quit, XmNactivateCallback, quitCallback,
 			(XtPointer)view);
 	XtAddCallback(view->help, XmNactivateCallback, helpCallback,
-			NULL);
+			(XtPointer)view);
 	
 	XtAddCallback(view->groupList, XmNbrowseSelectionCallback,
 			groupListCallback, (XtPointer)view);
@@ -233,12 +256,12 @@ int main(int argc, char *argv[]) {
 			view);
 	XtAddCallback(view->commandNotFoundDialog,
 			XmNhelpCallback, helpCallback,
-			NULL);
+			(XtPointer)view);
 	
 	XtAddCallback(view->quitDialog, XmNokCallback, exitProgram,
 			NULL);
 	XtAddCallback(view->quitDialog, XmNhelpCallback, helpCallback,
-			NULL);
+			(XtPointer)view);
 	
 	setListContents(view->groupList, n, groupList, 10);
 

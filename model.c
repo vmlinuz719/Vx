@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
@@ -73,6 +74,10 @@ int execProgram(Program *program, char *args) {
 	} else if (!parent) {
 		close(execPipe[0]);
 		fcntl(execPipe[1], F_SETFD, FD_CLOEXEC);
+		
+		/* avoid starting a bunch of mc or something */
+		
+		unsetenv("TERM");
 		
 		int errorCode = execvp(argv[0], argv);
 		

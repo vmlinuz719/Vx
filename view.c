@@ -169,23 +169,66 @@ View *createView(int argc, char *argv[]) {
 			XmNtopWidget, commandLabel,
 			NULL);
 	
-	Arg quitArg[5];
-	int quitn = 0;
+	view->quitDialog = XmCreateQuestionDialog
+			(view->quit, "question", NULL, 0);
 	XmString quitText = XmStringCreateLocalized
 			("Are you sure you want to quit?");
-	XtSetArg(quitArg[quitn], XmNmessageString, quitText); quitn++;
-	view->quitDialog = XmCreateQuestionDialog
-			(view->quit, "question", quitArg, quitn);
+	XtVaSetValues(view->quitDialog,
+			XmNmessageString, quitText,
+			NULL);
 	XmStringFree(quitText);
 	
-	Arg errorArg[5];
-	int errorn = 0;
+	view->commandNotFoundDialog = XmCreateErrorDialog
+			(view->runButton, "error", NULL, 0);
 	XmString errorText = XmStringCreateLocalized
 			("Could not run command");
-	XtSetArg(errorArg[errorn], XmNmessageString, errorText); errorn++;
-	view->commandNotFoundDialog = XmCreateErrorDialog
-			(view->quit, "error", errorArg, errorn);
+	XtVaSetValues(view->commandNotFoundDialog,
+			XmNmessageString, errorText,
+			NULL);
 	XmStringFree(errorText);
+	
+	view->defaultHelpDialog = XmCreateTemplateDialog
+			(view->help, "defaultHelp", NULL, 0);
+	XmString defaultHelpText = XmStringCreateLocalized
+			("Select a program group on the left.\n"
+			"Then, choose a program on the right.\n"
+			"Double-click the program's name to start it.\n\n"
+			"You may enter or edit any command\n"
+			"using the command entry box on the bottom.");
+	XtVaSetValues(view->defaultHelpDialog,
+			XmNmessageString, defaultHelpText,
+			NULL);
+	XmStringFree(defaultHelpText);
+	XtVaCreateManagedWidget("Dismiss",
+			xmPushButtonWidgetClass, view->defaultHelpDialog,
+			NULL);
+	
+	view->quitHelpDialog = XmCreateTemplateDialog
+			(view->quit, "quitHelp", NULL, 0);
+	XmString quitHelpText = XmStringCreateLocalized
+			("Select \"OK\" to quit.\n"
+			"Select \"Cancel\" to dismiss the dialog.");
+	XtVaSetValues(view->quitHelpDialog,
+			XmNmessageString, quitHelpText,
+			NULL);
+	XmStringFree(quitHelpText);
+	XtVaCreateManagedWidget("Dismiss",
+			xmPushButtonWidgetClass, view->quitHelpDialog,
+			NULL);
+	
+	view->runHelpDialog = XmCreateTemplateDialog
+			(view->runButton, "runHelp", NULL, 0);
+	XmString runHelpText = XmStringCreateLocalized
+			("The command could not be executed.\n"
+			"Select \"OK\" to revise the command.\n"
+			"Select \"Cancel\" to clear the command.");
+	XtVaSetValues(view->runHelpDialog,
+			XmNmessageString, runHelpText,
+			NULL);
+	XmStringFree(runHelpText);
+	XtVaCreateManagedWidget("Dismiss",
+			xmPushButtonWidgetClass, view->runHelpDialog,
+			NULL);
 	
 	XtVaSetValues(resizer,
 			XmNwidth, 480,

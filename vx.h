@@ -83,6 +83,7 @@ typedef struct {
 	Widget commandBox, runButton;
 	Widget favButton, unfavButton;
 	Widget quitDialog, commandNotFoundDialog;
+	Widget quitHelpDialog, runHelpDialog, defaultHelpDialog;
 	XtAppContext context;
 } View;
 
