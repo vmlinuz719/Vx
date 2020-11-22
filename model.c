@@ -77,6 +77,8 @@ int execProgram(Program *program, char *args) {
 		
 		/* avoid starting a bunch of mc or something */
 		
+		fclose(stdout);
+		fclose(stdin);
 		unsetenv("TERM");
 		
 		int errorCode = execvp(argv[0], argv);
