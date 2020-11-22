@@ -15,6 +15,9 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <fcntl.h>
+
+#include <Xm/Xm.h>
 
 #include "vx.h"
 
@@ -51,17 +54,40 @@ int execProgram(Program *program, char *args) {
 	}
 	argv[i] = NULL;
 	
+	/* generate pipe to get exit code of execvp */
+	
+	int execPipe[2];
+	if (pipe(execPipe) < 0) {
+		printf("Pipe failure\n");
+		exit(EXIT_FAILURE);
+	}
+	
 	/* run the program! */
 	
 	pid_t parent = fork();
 	
 	if (parent == -1) {
+		close(execPipe[0]);
+		close(execPipe[1]);
 		return EXIT_FAILURE;
 	} else if (!parent) {
-		execvp(argv[0], argv);
+		close(execPipe[0]);
+		fcntl(execPipe[1], F_SETFD, FD_CLOEXEC);
+		
+		int errorCode = execvp(argv[0], argv);
+		
+		write(execPipe[1], &errorCode, sizeof(int));
+		close(execPipe[1]);
+		exit(EXIT_FAILURE);
 	}
 	
-	return EXIT_SUCCESS;	
+	close(execPipe[1]);
+	
+	int execResult = 0;
+	read(execPipe[0], &execResult, sizeof(int));
+	
+	close(execPipe[0]);
+	return execResult;	
 }
 
 void deleteProgram(Program *program) {
@@ -108,7 +134,7 @@ ProgramGroup *readConfigFile(char *fileName) {
 	ProgramGroup *current = root;
 	
 	current->visualName = malloc(5 * sizeof(char));
-	strcpy(current->visualName, "Root");
+	strcpy(current->visualName, "Main");
 	current->next = NULL;
 	
 	current->programs = NULL;

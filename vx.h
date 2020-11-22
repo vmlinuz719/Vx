@@ -9,6 +9,8 @@
  * improve readability even though it is not idiomatic for C.
  */
 
+#include <Xm/Xm.h>
+
 typedef struct pgm {
 	/* Program: Data structure to represent a program or program list.
 	 * Fields:
@@ -18,6 +20,7 @@ typedef struct pgm {
 	 */
 	
 	char *visualName;
+	XmString XmvisualName;
 	/* TODO: add icon support */	
 	char *command;
 	
@@ -33,6 +36,7 @@ typedef struct grp {
 	 */
 	
 	char *visualName;
+	/* XmString XmvisualName; */
 	/* TODO: add icon support */
 	Program *programs;
 	
@@ -70,6 +74,19 @@ void deleteProgram(Program *program);
  */
 
 void deleteProgramGroup(ProgramGroup *programGroup);
+
+/* The view class */
+
+typedef struct {
+	Widget topLevel, mainWindow, menuBar, quit, help;
+	Widget groupList, programList;
+	Widget commandBox, runButton;
+	Widget favButton, unfavButton;
+	Widget quitDialog, commandNotFoundDialog;
+	XtAppContext context;
+} View;
+
+View *createView(int argc, char *argv[]);
 
 /* Preprocessor config options */
 

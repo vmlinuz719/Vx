@@ -16,33 +16,13 @@
 #include <Xm/CascadeB.h>
 #include <Xm/RowColumn.h>
 #include <Xm/Form.h>
+#include <Xm/MessageB.h>
 #include <Xm/Label.h>
 #include <Xm/PushB.h>
 #include <Xm/List.h>
 #include <Xm/Text.h>
 
 #include "vx.h"
-
-/* The view class */
-
-typedef struct {
-	Widget topLevel, mainWindow, menuBar, quit, help;
-	Widget groupList, programList;
-	Widget commandBox, runButton;
-	Widget favButton, unfavButton;
-	XtAppContext context;
-} View;
-
-/* TODO: move callbacks to controller */
-
-void quitCallback() {
-	printf("Exiting.\n");
-	exit(0);
-}
-
-void helpCallback() {
-	printf("Not implemented, sorry!\n");
-}
 
 View *createView(int argc, char *argv[]) {
 	View *view = malloc(sizeof(View));
@@ -113,18 +93,22 @@ View *createView(int argc, char *argv[]) {
 			xmLabelWidgetClass, left,
 			NULL);
 	
-	view->groupList = XtVaCreateManagedWidget("groupList",
-			xmListWidgetClass, left,
+	view->groupList = XmCreateScrolledList(left, "groupList", NULL, 0);
+	XtVaSetValues(XtParent(view->groupList),
 			XmNtopAttachment, XmATTACH_WIDGET,
 			XmNtopWidget, groupLabel,
 			XmNleftAttachment, XmATTACH_FORM,
 			XmNrightAttachment, XmATTACH_FORM,
 			XmNbottomAttachment, XmATTACH_FORM,
 			NULL);
+	XtVaSetValues(view->groupList, XmNscrollBarDisplayPolicy, XmSTATIC,
+			NULL);
+	XtManageChild(view->groupList);
 	
 	Widget programLabel = XtVaCreateManagedWidget("Programs",
 			xmLabelWidgetClass, right,
 			NULL);
+	/*
 	view->favButton = XtVaCreateManagedWidget("Fav",
 			xmPushButtonWidgetClass, right,
 			XmNleftAttachment, XmATTACH_FORM,
@@ -139,15 +123,22 @@ View *createView(int argc, char *argv[]) {
 			XmNleftPosition, 50,
 			XmNbottomAttachment, XmATTACH_FORM,
 			NULL);
-	view->programList = XtVaCreateManagedWidget("programList",
-			xmListWidgetClass, right,
+	*/
+	view->programList = XmCreateScrolledList(right, "programList", NULL, 0);
+	XtVaSetValues(XtParent(view->programList),
 			XmNtopAttachment, XmATTACH_WIDGET,
 			XmNtopWidget, programLabel,
 			XmNleftAttachment, XmATTACH_FORM,
 			XmNrightAttachment, XmATTACH_FORM,
+			/*
 			XmNbottomAttachment, XmATTACH_WIDGET,
 			XmNbottomWidget, view->favButton,
+			*/
+			XmNbottomAttachment, XmATTACH_FORM,
 			NULL);
+	XtVaSetValues(view->programList, XmNscrollBarDisplayPolicy, XmSTATIC,
+			NULL);
+	XtManageChild(view->programList);
 	
 	Widget commandArea = XtVaCreateManagedWidget("commandArea",
 			xmFormWidgetClass, resizer,
@@ -178,21 +169,26 @@ View *createView(int argc, char *argv[]) {
 			XmNtopWidget, commandLabel,
 			NULL);
 	
+	Arg quitArg[5];
+	int quitn = 0;
+	XmString quitText = XmStringCreateLocalized
+			("Are you sure you want to quit?");
+	XtSetArg(quitArg[quitn], XmNmessageString, quitText); quitn++;
+	view->quitDialog = XmCreateQuestionDialog
+			(view->quit, "question", quitArg, quitn);
+	XmStringFree(quitText);
+	
+	Arg errorArg[5];
+	int errorn = 0;
+	XmString errorText = XmStringCreateLocalized
+			("Could not run command");
+	XtSetArg(errorArg[errorn], XmNmessageString, errorText); errorn++;
+	view->commandNotFoundDialog = XmCreateErrorDialog
+			(view->quit, "error", errorArg, errorn);
+	XmStringFree(errorText);
+	
 	XtSetArg(arg[0], XmNmenuHelpWidget, view->help);
 	XtSetValues(view->menuBar, arg, 1);
 	
-	/* TODO: move to controller */
-	XtAddCallback(view->quit, XmNactivateCallback, quitCallback, NULL);
-	XtAddCallback(view->help, XmNactivateCallback, helpCallback, NULL);
-	
 	return view;
-}
-
-int main(int argc, char *argv[]) {
-	View *view = createView(argc, argv);
-	
-	XtRealizeWidget(view->topLevel);
-	XtAppMainLoop(view->context);
-	
-	return 0;
 }

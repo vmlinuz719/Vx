@@ -1,12 +1,12 @@
-grp	Desktop_Tools
-	pgm	Nedit		nedit
-	pgm 	Terminal	xterm
+grp Editors
+pgm Nedit nedit
+pgm Xedit xedit
+pgm Vi xterm vi
 
-grp	System_Tools
-	pgm	Tmux		xterm tmux
-	pgm	Htop		xterm htop
-	pgm	DtApm		dtapm
+grp System Utilities
+pgm Xterm xterm
+pgm Midnight_Commander xterm mc
+pgm Htop xterm -geometry 96x24 htop
 
-grp	Network
-	pgm	Firefox		firefox
-	pgm	Netstat		xterm netstat
+grp Network
+pgm Firefox firefox
