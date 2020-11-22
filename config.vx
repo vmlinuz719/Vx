@@ -3,7 +3,7 @@ pgm Nedit nedit
 pgm Xedit xedit
 pgm Vi xterm vi
 
-grp System Utilities
+grp System_Utilities
 pgm Xterm xterm
 pgm Midnight_Commander xterm mc
 pgm Htop xterm -geometry 96x24 htop
